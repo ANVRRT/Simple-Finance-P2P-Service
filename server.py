@@ -14,65 +14,88 @@ class Server:
 
     
     def create_client(self,serverSock):
-        data=""
+        data = ""
         data = serverSock.recv(1024).decode()
-        print(data)
         data = json.loads(data)
         
-        result=""
-        result = self.TransactionManager.create_account(data) #CHANGE INTO BANKDBC
+        transactionResult = self.TransactionManager.create_account(data) #CHANGE INTO BANKDBC
         
-        transactionResult = result + "\n"
         serverSock.send(transactionResult.encode())
         print("Sent Message: "+str(transactionResult))
     
     def verify_user(self, serverSock):
-        pass
+        data = ""
+        data = serverSock.recv(1024).decode()
+        result = self.TransactionManager.verify_account(data)
+        result = str(result)
 
-    # def load_data(self):
-    #     file = open("jsonFile.json",)
+        serverSock.send(result.encode())
 
-    #     data = json.load(file)
-    #     self.accounts = { profile: {"Name": data[profile]["Name"], "Age": data[profile]["Age"], "Sex": data[profile]["Sex"]} for profile in data}
-    #     self.balances = { profile: data[profile]["Balance"] for profile in data}
-    #     print(self.accounts)
+    def verify_password(self,serverSock):
+        data = ""
+        data = serverSock.recv(1024).decode()
+        data = json.loads(data)
+
+        result = self.TransactionManager.verify_password(data)
+        result = str(result)
+
+        serverSock.send(result.encode())
+    
+    def get_user_data(self,serverSock):
+        data = ""
+        data = serverSock.recv(1024).decode()
+        
+        result = self.TransactionManager.get_user_data(data)
+
+        result = json.dumps(result)
+
+        serverSock.send(result.encode())
+
+    def make_deposit(self,serverSock):
+        data = ""
+        data = serverSock.recv(1024).decode()
+        data = json.loads(data)
+
+        self.TransactionManager.make_deposit(data)
+
+        result = "Success"
+
+        serverSock.send(result.encode())
 
     def initialize_server(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(("127.0.0.1",5010))
         server.listen(5)
-
-        # Use server debe estar en un cliclo atendiendo a clientes
-        while(True):
-            print("Estado Listen...\nEsperando peticiones de conexion... \n")
-            
+        print("Server listening for requests")
+        while(True):            
             serverSock, clienteAddr = server.accept()
             
-            # 1. Obtener transaction a realizar
             transaction=""
             transaction = serverSock.recv(1024).decode()
-            print("Transaction: "+str(transaction))
+            # print("Transaction: "+str(transaction))
             
             # transaction Capturar datos
-            if(transaction == "createClient\n"):
+            if(transaction == "createClient"):
 
                 self.create_client(serverSock)
-                # data=""
-                # data = serverSock.recv(1024).decode()
-                # print(data)
-                # data = json.loads(data)
-                
-                # result=""
-                # result = self.TransactionManager.create_account(data) #CHANGE INTO BANKDBC
-                
-                # transactionResult = result + "\n"
-                # serverSock.send(transactionResult.encode())
-                # print("Sent Message: "+str(transactionResult))
-            
-            if (transaction == "verifyUser\n"):
+
+            if (transaction == "verifyUser"):
+
                 self.verify_user(serverSock)
 
-            
+            if (transaction == "verifyPassword"):
+
+                self.verify_password(serverSock)
+
+            if (transaction == "getUserData"):
+
+                self.get_user_data(serverSock)
+
+            if (transaction == "makeDeposit"):
+                
+                self.make_deposit(serverSock)
+
+
             serverSock.close()
             #server.close()
 
