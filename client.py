@@ -140,7 +140,7 @@ class Client:
         def send_payment():
             
             self.start_socket()
-            receptorID = InputManager.define_string("Please enter the receptor ID")
+            receptorID = InputManager.define_string("Please enter the receptor ID:")
             
             transactionType = "verifyUser"
             self.sock.send(transactionType.encode())
@@ -155,7 +155,7 @@ class Client:
                 return
 
             print(f"You currently have ${self.sessionBalance}")
-            sendingAmount = InputManager.define_numbers(message="Enter the amount you want to send", infLimit = 1, typeOfNumber = float)
+            sendingAmount = InputManager.define_numbers(message="Enter the amount you want to send:", infLimit = 1, typeOfNumber = float)
             approvalFlag = validate_balance(sendingAmount)
             if not approvalFlag:
                 InputManager.display_message("You dont have enough money")
