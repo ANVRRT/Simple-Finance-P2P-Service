@@ -14,20 +14,36 @@ class Server:
 
     
     def create_client(self,serverSock):
-        data=""
+        data = ""
         data = serverSock.recv(1024).decode()
-        print(data)
         data = json.loads(data)
         
-        result=""
-        result = self.TransactionManager.create_account(data) #CHANGE INTO BANKDBC
+        transactionResult = self.TransactionManager.create_account(data) #CHANGE INTO BANKDBC
         
-        transactionResult = result + "\n"
         serverSock.send(transactionResult.encode())
         print("Sent Message: "+str(transactionResult))
     
     def verify_user(self, serverSock):
-        pass
+        data = ""
+        data = serverSock.recv(1024).decode()
+        result = self.TransactionManager.verify_account(data)
+        result = str(result)
+
+        serverSock.send(result.encode())
+
+    def verify_password(self,serverSock):
+        data = ""
+        data = serverSock.recv(1024).decode()
+        data = json.loads(data)
+
+        result = self.TransactionManager.verify_password(data)
+        result = str(result)
+
+        serverSock.send(result.encode())
+    
+
+
+            
 
     # def load_data(self):
     #     file = open("jsonFile.json",)
@@ -43,36 +59,27 @@ class Server:
         server.listen(5)
 
         # Use server debe estar en un cliclo atendiendo a clientes
-        while(True):
-            print("Estado Listen...\nEsperando peticiones de conexion... \n")
-            
+        while(True):            
             serverSock, clienteAddr = server.accept()
             
-            # 1. Obtener transaction a realizar
             transaction=""
             transaction = serverSock.recv(1024).decode()
-            print("Transaction: "+str(transaction))
+            # print("Transaction: "+str(transaction))
             
             # transaction Capturar datos
             if(transaction == "createClient\n"):
 
                 self.create_client(serverSock)
-                # data=""
-                # data = serverSock.recv(1024).decode()
-                # print(data)
-                # data = json.loads(data)
-                
-                # result=""
-                # result = self.TransactionManager.create_account(data) #CHANGE INTO BANKDBC
-                
-                # transactionResult = result + "\n"
-                # serverSock.send(transactionResult.encode())
-                # print("Sent Message: "+str(transactionResult))
-            
+
             if (transaction == "verifyUser\n"):
+
                 self.verify_user(serverSock)
 
-            
+            if (transaction == "verifyPassword\n"):
+
+                self.verify_password(serverSock)
+
+                
             serverSock.close()
             #server.close()
 
