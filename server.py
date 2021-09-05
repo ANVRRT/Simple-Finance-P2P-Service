@@ -41,24 +41,32 @@ class Server:
 
         serverSock.send(result.encode())
     
+    def get_user_data(self,serverSock):
+        data = ""
+        data = serverSock.recv(1024).decode()
+        
+        result = self.TransactionManager.get_user_data(data)
 
+        result = json.dumps(result)
 
-            
+        serverSock.send(result.encode())
 
-    # def load_data(self):
-    #     file = open("jsonFile.json",)
+    def make_deposit(self,serverSock):
+        data = ""
+        data = serverSock.recv(1024).decode()
+        data = json.loads(data)
 
-    #     data = json.load(file)
-    #     self.accounts = { profile: {"Name": data[profile]["Name"], "Age": data[profile]["Age"], "Sex": data[profile]["Sex"]} for profile in data}
-    #     self.balances = { profile: data[profile]["Balance"] for profile in data}
-    #     print(self.accounts)
+        self.TransactionManager.make_deposit(data)
+
+        result = "Success"
+
+        serverSock.send(result.encode())
 
     def initialize_server(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(("127.0.0.1",5010))
         server.listen(5)
-
-        # Use server debe estar en un cliclo atendiendo a clientes
+        print("Server listening for requests")
         while(True):            
             serverSock, clienteAddr = server.accept()
             
@@ -67,19 +75,27 @@ class Server:
             # print("Transaction: "+str(transaction))
             
             # transaction Capturar datos
-            if(transaction == "createClient\n"):
+            if(transaction == "createClient"):
 
                 self.create_client(serverSock)
 
-            if (transaction == "verifyUser\n"):
+            if (transaction == "verifyUser"):
 
                 self.verify_user(serverSock)
 
-            if (transaction == "verifyPassword\n"):
+            if (transaction == "verifyPassword"):
 
                 self.verify_password(serverSock)
 
+            if (transaction == "getUserData"):
+
+                self.get_user_data(serverSock)
+
+            if (transaction == "makeDeposit"):
                 
+                self.make_deposit(serverSock)
+
+
             serverSock.close()
             #server.close()
 

@@ -5,7 +5,7 @@ import json
 class BankDBM:
     def __init__(self):
         self.accounts = ""
-        self.balances = ""
+        # self.balances = ""
         self.load_data()
         pass
 
@@ -19,9 +19,13 @@ class BankDBM:
                                         "Sex": profile["Sex"],
                                         "Password": profile["Password"],
                                         "Balance": 0 }
-        self.save__file(self.accounts)
+        self.save_file(self.accounts)
 
         return "Success"
+
+    def get_user_data(self,userID):
+
+        return self.accounts[userID]
 
     def verify_account(self,data):
         if data in self.accounts:
@@ -40,17 +44,27 @@ class BankDBM:
         else: 
             return False
 
+    def make_deposit(self,data):
+        senderID = data["Sender"]
+        receptorID = data["Receptor"]
+        amount = data["Amount"]
+
+        self.accounts[senderID]["Balance"] -= amount
+        self.accounts[receptorID]["Balance"] += amount
+
+        self.save_file(self.accounts)
+
         
-    def save__file(self, data):
+    def save_file(self, data):
         with open('accounts.json',"w") as file:
             
             json.dump(data, file)
-        self.load_data()
+        # self.load_data()
 
     def load_data(self):
         with open("accounts.json",) as file:
 
             data = json.load(file)
             self.accounts = { profile: {"Name": data[profile]["Name"], "Age": data[profile]["Age"], "Sex": data[profile]["Sex"], "Password": data[profile]["Password"], "Balance": data[profile]["Balance"]} for profile in data}
-            self.balances = { profile: data[profile]["Balance"] for profile in data}
+            # self.balances = { profile: data[profile]["Balance"] for profile in data}
             # print(self.accounts)
