@@ -24,11 +24,11 @@ class Client:
     
     def process_data(self):                                                                                     #<---------- Handles all data required inputs for account creation ---------->
         
-        while True:                                                                                             #Starts loop until the new account ID entered is not already registered.
+        transactionType = "verifyUser"                                                                      #Defines transaction type.
+        while True:                                                                                         #Starts loop until the new account ID entered is not already registered.
             self.start_socket()                                                                                 #Starts socket.
-            profileID = InputManager.define_string("Please enter your new account ID")                          #Enters the new account ID.
-            
-            transactionType = "verifyUser"                                                                      #Defines transaction type.
+            profileID = InputManager.define_string("Please enter your new account ID: ")                          #Enters the new account ID.
+
             self.sock.send(transactionType.encode())                                                            #Encodes transaction type and sends it to server.
 
             time.sleep(1)                                                                                       #Sets 1 second delay for preventing joining bytes packages in server reception.
@@ -37,18 +37,23 @@ class Client:
             # print(transactionResult)
             self.stop_socket()                                                                                  #Disconnects socket.
             if transactionResult == "True":                                                                     #If the account is already registered, display message and continue in loop.
-                InputManager.display_message("This account ID is already registered, please try another one")
+                InputManager.display_message("This account ID is already registered, please try another one!")
             else:                                                                                               #If the account is not registered, break the loop.
                 break
 
         profileName = InputManager.define_string("Please enter your full name:")                                #Enters the person name.
-        profileAge = InputManager.define_numbers(message="Please enter your age (Must be greater or equal than 18):", infLimit = 18,typeOfNumber = int)             #Enters the person age with bounds.
-        profileSex = InputManager.define_string("Please enter the letter corresponding to your sex (Male = M) (Female = F):")                                       #Enters the person sex.
-        profilePassword = sha256(InputManager.define_string(message="Please enter your password, must be minimum 6 characters long, maximum 30:", infLimit=6, supLimit=30).encode())    #Enters the new account password with length bounds.
+        profileAge = InputManager.define_numbers(message="Please enter your age (Must be equal or greater than 18): ", infLimit = 18,typeOfNumber = int)             #Enters the person age with bounds.
+        profileSex = InputManager.define_string("Please enter the letter corresponding to your sex (Male = M) (Female = F): ")                                       #Enters the person sex.
+        profilePassword = sha256(InputManager.define_string(message="Please enter your password, must be minimum 6 characters long, maximum 30: ", infLimit=6, supLimit=30).encode())    #Enters the new account password with length bounds.
 
-        profileData = {"ID": profileID, "Name": profileName, "Age": profileAge, "Sex": profileSex, "Password": profilePassword.hexdigest()}                         #Prepares the data into a hashMap .
         # print(self.profileData)
-        return profileData                                                                                                                                          #Returns the hashMap containing the data.
+        return {
+            "ID": profileID,
+            "Name": profileName,
+            "Age": profileAge,
+            "Sex": profileSex,
+            "Password": profilePassword.hexdigest(),
+        }
         
 
     def create_account(self):                                                                           #<---------- Starts create account process ---------->
@@ -72,11 +77,11 @@ class Client:
 
     def log_in(self):                                                                                   #<---------- Starts log in process ---------->
 
-        sessionID = InputManager.define_string("Please enter your account ID")                          #Enters the user ID you want to log in.
+        sessionID = InputManager.define_string("Please enter your account ID: ")                          #Enters the user ID you want to log in.
 
 
         self.start_socket()                                                                             #Starts socket
-        sessionPassword = sha256(InputManager.define_string(message="Please enter your password:", infLimit=6, supLimit=30).encode()).hexdigest()   #Enters password, and it gets hashed and converted into hexadecimal.
+        sessionPassword = sha256(InputManager.define_string(message="Please enter your password: ", infLimit=6, supLimit=30).encode()).hexdigest()   #Enters password, and it gets hashed and converted into hexadecimal.
         
         transactionType = "verifyPassword"                                                              #Defines transaction type.
         self.sock.send(transactionType.encode())                                                        #Encodes transaction type string and sends it to server.
@@ -91,7 +96,7 @@ class Client:
         self.stop_socket()                                                                              #Disconnects socket.
         # print(transactionResult)
         if transactionResult == "False":                                                                #If the password is wrong, it returns and displays a message.
-            InputManager.display_message("The password for this account is incorrect, please try again")
+            InputManager.display_message("The password for this account is incorrect, please try again!")
             return False
         else:                                                                                           #If the password is correct, it stores the user ID as the sessionID and the password.
             self.sessionID = sessionID
@@ -131,15 +136,12 @@ class Client:
             InputManager.display_message(message="")
 
         def validate_balance(amount):                                                                       #<---------- Validates if the current balance of the logged user is sufficient for amount sent as parameter.
-            if amount > self.sessionBalance:
-                return False
-            else:
-                return True
+            return amount <= self.sessionBalance
 
         def send_payment():                                                                                 #Initializes the process for sending a payment to another user.
                                                                                                             # <------------- Starts existence of user verification ------------->
             self.start_socket()                                                                                 #Starts socket.
-            receptorID = InputManager.define_string("Please enter the receptor ID:")                            #Enters the receptor ID.
+            receptorID = InputManager.define_string("Please enter the receptor ID: ")                            #Enters the receptor ID.
             
             transactionType = "verifyUser"                                                                      #Defines transaction type.
             self.sock.send(transactionType.encode())                                                            #Encodes string, and sends it to server.
@@ -154,10 +156,10 @@ class Client:
                 return                                                                                       # <------------- Finishes existence of user verification ------------->
 
             print(f"You currently have ${self.sessionBalance}")                                              #Displays current blanace.
-            sendingAmount = InputManager.define_numbers(message="Enter the amount you want to send:", infLimit = 1, typeOfNumber = float)   #Enters the sending amount.
+            sendingAmount = InputManager.define_numbers(message="Enter the amount you want to send: ", infLimit = 1, typeOfNumber = float)   #Enters the sending amount.
             approvalFlag = validate_balance(sendingAmount)                                                   #Validates and returns if the logged user has the sufficient balance for a deposit.
             if not approvalFlag:                                                                             #If it doesn't, it returns and displays message.
-                InputManager.display_message("You dont have enough money")
+                InputManager.display_message("You dont have enough money.")
                 return
             
             data = {"Sender": self.sessionID, "Receptor": receptorID, "Amount": sendingAmount}               #Prepares the data in json format.
@@ -198,7 +200,7 @@ class Client:
             print("4) Exit")
             print("")
             print("*****************************************************")
-            selectedOption = InputManager.define_numbers(message="Type a number according to your selected option:", infLimit = 1, supLimit = 4,typeOfNumber = int)
+            selectedOption = InputManager.define_numbers(message="Type a number according to your selected option: ", infLimit = 1, supLimit = 4,typeOfNumber = int)
             if selectedOption == 4:
                 break
             
@@ -225,7 +227,7 @@ class Client:
             print("3) Exit")                                                        #Option for exiting the menu by typing 3.
             print("")
             print("*****************************************************")
-            selectedOption = InputManager.define_numbers(message="Type a number according to your selected option", infLimit = 1, supLimit = 3,typeOfNumber = int) #Calls InputManager function for entering a bounded number and repeating until the number is accepted.
+            selectedOption = InputManager.define_numbers(message="Type a number according to your selected option: ", infLimit = 1, supLimit = 3,typeOfNumber = int) #Calls InputManager function for entering a bounded number and repeating until the number is accepted.
             if selectedOption == 3:                                                 #What it executes when you exit the menu.
                 print()
                 print("THANKS FOR USING THE PYTHON BANK P2P SERVICE")
