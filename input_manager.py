@@ -36,21 +36,20 @@ class InputManager:
                 displayMessage = message+" "
             number, isNumber = InputManager.is_number(input(displayMessage), typeOfNumber)
 
-            if isNumber is not False: 
-                if infLimit is not None and number < infLimit:
-                    InputManager.display_message(f"Error, the value {number} must be greater than {infLimit}")
-                    iter -= 1
-                elif supLimit is not None and number > supLimit:
-                    InputManager.display_message(f"Error, the value {number} must be smaller than {supLimit}")
-                    iter -= 1
-                else:
-                    numbers.append(number)
-            else:
+            if isNumber is False:
                 InputManager.display_message(f"Error, the value {number} is not an accepted element")
                 iter -= 1
 
+            elif infLimit is not None and number < infLimit:
+                InputManager.display_message(f"Error, the value {number} must be greater than {infLimit}")
+                iter -= 1
+            elif supLimit is not None and number > supLimit:
+                InputManager.display_message(f"Error, the value {number} must be smaller than {supLimit}")
+                iter -= 1
+            else:
+                numbers.append(number)
             iter += 1
-        
+
         if len(numbers) != 1:
             return numbers
         else:
@@ -88,9 +87,3 @@ if __name__ == "__main__":
 # <--------------------------------------  ENDS SIMPLE TESTING REGION  -------------------------------------------->
 # <--------------------------------------  ENDS SIMPLE TESTING REGION  -------------------------------------------->
 # <--------------------------------------  ENDS SIMPLE TESTING REGION  -------------------------------------------->
-
-
-            
-
-
-
