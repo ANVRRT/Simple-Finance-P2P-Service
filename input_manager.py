@@ -1,3 +1,4 @@
+
 #MADE BY ALBERTO NAVARRETE
 #DISTRIBUTION OF THIS LIBRARY IS PERMITED AS LONG AS CREDIT IS GIVEN
 #YOU ARE NOT ALLOWED TO CREDIT YOURSELF AS OWNER/DEVELOPER OF THIS LIBRARY
@@ -35,7 +36,7 @@ class InputManager:
             else:
                 displayMessage = message+" "
             number, isNumber = InputManager.is_number(input(displayMessage), typeOfNumber)
-            
+
             if isNumber is not False: 
                 if infLimit is not None and number < infLimit:
                     InputManager.display_message(f"Error, the value {number} must be greater than {infLimit}")
@@ -46,9 +47,11 @@ class InputManager:
                 else:
                     numbers.append(number)
             else:
-                numbers.append(number)
-            iter += 1
+                InputManager.display_message(f"Error, the value {number} is not an accepted element")
+                iter -= 1
 
+            iter += 1
+        
         if len(numbers) != 1:
             return numbers
         else:
