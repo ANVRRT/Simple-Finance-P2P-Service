@@ -1,3 +1,4 @@
+
 #MADE BY ALBERTO NAVARRETE
 #DISTRIBUTION OF THIS LIBRARY IS PERMITED AS LONG AS CREDIT IS GIVEN
 #YOU ARE NOT ALLOWED TO CREDIT YOURSELF AS OWNER/DEVELOPER OF THIS LIBRARY
@@ -88,9 +89,3 @@ if __name__ == "__main__":
 # <--------------------------------------  ENDS SIMPLE TESTING REGION  -------------------------------------------->
 # <--------------------------------------  ENDS SIMPLE TESTING REGION  -------------------------------------------->
 # <--------------------------------------  ENDS SIMPLE TESTING REGION  -------------------------------------------->
-
-
-            
-
-
-

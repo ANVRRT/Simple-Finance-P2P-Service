@@ -14,12 +14,9 @@ class Server:
 
     
     def create_client(self,serverSock):                                     #<---------- Creates a new client ---------->
-        data = ""
-        data = serverSock.recv(1024).decode()                               #Receives the data of the new client/account to create.
-        data = json.loads(data)                                             #Transforms data into json hashMap format.
-        
+        data = self.format_json(serverSock)
         transactionResult = self.TransactionManager.create_account(data)    #Calls Database Manager with the data for account registration.
-        
+
         serverSock.send(transactionResult.encode())                         #Sends back to client the transaction result.
     
     def verify_user(self, serverSock):                                      #<---------- Verifies if the user exists ---------->
@@ -31,10 +28,7 @@ class Server:
         serverSock.send(result.encode())                                    #Sends back to client the transaction result.
 
     def verify_password(self,serverSock):                                   #<---------- Verifies if the password is correct for a selected account ---------->
-        data = ""
-        data = serverSock.recv(1024).decode()                               #Receives the data of the new client/account to verify.
-        data = json.loads(data)                                             #Transforms data into json hashMap format.
-
+        data = self.format_json(serverSock)
         result = self.TransactionManager.verify_password(data)              #Calls Database Manager with the data for verifying if the password is correct.
         result = str(result)                                                #Transforms into string the result returned by the Database manager.
 
@@ -51,15 +45,18 @@ class Server:
         serverSock.send(result.encode())                                    #Sends data back to client.
 
     def make_deposit(self,serverSock):                                      #<---------- Makes a deposit to the sent account ID ---------->
-        data = ""
-        data = serverSock.recv(1024).decode()                               #Receives the data of the new client/account to verify.
-        data = json.loads(data)                                             #Transforms data into json hashMap format.
-
+        data = self.format_json(serverSock)
         self.TransactionManager.make_deposit(data)                          #Calls Database Manager with the needed data for making a deposit (Sender, Receptor, Amount).
 
         result = "Success"                                                  #Defines transaction result.
 
         serverSock.send(result.encode())                                    #Sends transaction result back to client.
+
+    def format_json(self, serverSock):
+        result = ''
+        result = serverSock.recv(1024).decode()                             #Receives the data of the new client/account to verify.
+        result = json.loads(result)                                         #Transforms data into json hashMap format.
+        return result
 
     def initialize_server(self):                                            #<---------- Initializes server ---------->
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)          #Prepares the socket connection.
