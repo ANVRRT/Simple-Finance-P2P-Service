@@ -7,7 +7,6 @@ class BankDBM:
         self.accounts = ""
         # self.balances = ""
         self.load_data()
-        pass
 
     
 
@@ -28,19 +27,13 @@ class BankDBM:
         return self.accounts[userID]
 
     def verify_account(self,data):                                          #<---------- Validates and returns if a user exists ---------->
-        if data in self.accounts:
-            return True
-        else:
-            return False
+        return data in self.accounts
 
     def verify_password(self,data):                                         #<---------- Validates if the received password and user, matches the access credentials for a registered user ---------->
         profile = data
 
         if profile["ID"] in self.accounts:
-            if self.accounts[profile["ID"]]["Password"] == profile["Password"]:
-                return True
-            else:
-                return False
+            return self.accounts[profile["ID"]]["Password"] == profile["Password"]
         else: 
             return False
 
